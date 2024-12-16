@@ -1,0 +1,57 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug train.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/train.py",
+            "console": "integratedTerminal",
+            // "args": [
+            //     "--dataset_name", "sz",
+            //     "--sat_dir", "../datasets/dataset_sz_grid/train_val/image_latent",
+            //     "--mask_dir", "../datasets/dataset_sz_grid/train_val/mask",
+            //     "--test_sat_dir", "../datasets/dataset_sz_grid/test/image_test_latent",
+            //     "--test_mask_dir", "../datasets/dataset_sz_grid/test/mask",
+            //     "--gps_dir", "../datasets/dataset_sz_grid/GPS/taxi_filtered_time_quantity_speed_patch_latent",
+            //     "--gps_type", "npy",
+            //     "--gps_render_type", "latent_filtered_ltqs",
+            //     "--quantity_render_type", "log"
+            // ]
+            // "args": [
+            //     "--dataset_name", "sz",
+            //     "--sat_dir", "../datasets/dataset_sz_grid/train_val/image",
+            //     "--mask_dir", "../datasets/dataset_sz_grid/train_val/mask",
+            //     "--test_sat_dir", "../datasets/dataset_sz_grid/test/image_test",
+            //     "--test_mask_dir", "../datasets/dataset_sz_grid/test/mask",
+            //     "--gps_dir", "../datasets/dataset_sz_grid/GPS/taxi_filtered_time_quantity_speed_patch",
+            //     "--gps_type", "image",
+            //     "--gps_render_type", "filtered_ltqs",
+            //     "--quantity_render_type", "log"
+            // ]
+            "args": [
+                "--model", "dlink34",
+                "--dataset_name", "bj",
+                "--sat_dir", "../datasets/dataset_bj_time/train_val/image",
+                "--mask_dir", "../datasets/dataset_bj_time/train_val/mask_sdf_T",
+                "--test_sat_dir", "../datasets/dataset_bj_time/test/image_test",
+                "--test_mask_dir", "../datasets/dataset_bj_time/test/mask_sdf_T",
+                "--gps_dir", "../datasets/dataset_bj_time/GPS/filtered_time_quantity_speed_gaussian_patch",
+                "--mask_type", "sdf",
+                "--gps_type", "image",
+                "--gps_render_type", "filtered_gaussian_ltqs",
+                "--quantity_render_type", "log",
+                "--epochs", "200",
+                "--wandb_group", "test_group",
+                "--wandb_notes", "Test each loss",
+                "--delta", "20",
+                "--loss", "mse_dice_bce_loss",
+                "--loss_weight", "1"
+            ]
+
+        }
+    ]
+}
