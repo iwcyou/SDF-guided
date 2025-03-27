@@ -32,14 +32,12 @@ class Solver:
     def set_input(self, img_batch, mask_batch=None, img_id=None): #输入图片
         self.img = img_batch
         self.mask = mask_batch
-        self.seg_mask = torch.where(mask_batch > 0, torch.tensor(1.0, device=mask_batch.device), torch.tensor(0.0, device=mask_batch.device)) #将mask_batch中大于0的值变为1，否则为0
         self.img_id = img_id
 
     def forward(self):
         self.img = self.img.cuda()
         if self.mask is not None:
             self.mask = self.mask.cuda()
-            self.seg_mask = self.seg_mask.cuda()
 
     def optimize(self): #优化器
         self.net.train()
@@ -48,9 +46,14 @@ class Solver:
         # print(self.img.shape)
         pred = self.net.forward(self.img)
         # seg_pred = (pred>0).detach().int() + (pred-pred.detach())
-        seg_pred = torch.sigmoid(pred)
         pred = torch.tanh(pred)
-        loss, sdf_loss, dice_loss, bce_loss = self.loss(pred, self.mask, seg_pred, self.seg_mask)
+        seg_pred = torch.sigmoid(pred)
+        self.sdf_mask = self.mask[:, 0, :, :]
+        self.sdf_mask = self.sdf_mask.unsqueeze(1)
+        self.seg_mask = self.mask[:, 1, :, :]
+        self.seg_mask = self.seg_mask.unsqueeze(1)
+
+        loss, sdf_loss, dice_loss, bce_loss = self.loss(pred, self.sdf_mask, seg_pred, self.seg_mask)
         loss.backward()
         # sdf_loss.backward(retain_graph=True)
         # sdf_grad = {name: param.grad.clone() for name, param in self.net.named_parameters()}
@@ -82,9 +85,14 @@ class Solver:
         with torch.no_grad():
             self.forward()
             pred = self.net.forward(self.img)
-            seg_pred = torch.sigmoid(pred)
             pred = torch.tanh(pred)
-            loss, sdf_loss, dice_loss, bce_loss = self.loss(pred, self.mask, seg_pred, self.seg_mask)
+            seg_pred = torch.sigmoid(pred)
+            self.sdf_mask = self.mask[:, 0, :, :]
+            self.sdf_mask = self.sdf_mask.unsqueeze(1)
+            self.seg_mask = self.mask[:, 1, :, :]
+            self.seg_mask = self.seg_mask.unsqueeze(1)
+
+            loss, sdf_loss, dice_loss, bce_loss = self.loss(pred, self.sdf_mask, seg_pred, self.seg_mask)
             metrics = self.metrics(self.seg_mask, seg_pred)
             # pred = pred.cpu().data.numpy()
         return seg_pred, loss.item(), metrics, sdf_loss.item(), dice_loss.item(), bce_loss.item()
@@ -137,7 +145,7 @@ class Trainer:
             else:
                 pred, iter_loss, iter_metrics, iter_sdf_loss, iter_dice_loss, iter_bce_loss = self.solver.optimize()
                 if i == 1:
-                    wandb.log({"train_sat":[wandb.Image(img[2][:3])], "train_pred": [wandb.Image(pred[2])], "train_mask": [wandb.Image(mask[2])]})
+                    wandb.log({"train_sat":[wandb.Image(img[2][:3])], "train_pred": [wandb.Image(pred[2])], "train_mask": [wandb.Image(mask[2][0])]})
             epoch_loss += iter_loss
             epoch_sdf_loss += iter_sdf_loss
             epoch_dice_loss += iter_dice_loss

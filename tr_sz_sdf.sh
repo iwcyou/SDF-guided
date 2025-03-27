@@ -16,8 +16,8 @@ models=(
 )
 delta=(
     # 1
-    # 10
-    20
+    10
+    # 20
     # 40
     # 60
     # 80
@@ -97,7 +97,7 @@ for w in "${weight_save_dir[@]}"; do
                     --gps_type data \
                     --gps_render_type count \
                     --quantity_render_type direct \
-                    --epochs 100 \
+                    --epochs 200 \
                     --wandb_group sz_overall\
                     --wandb_notes "sz overall exp." \
                     --delta "${delta}" \

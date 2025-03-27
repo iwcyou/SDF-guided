@@ -1,6 +1,12 @@
+numpy==1.26.3
 pandas==1.5.1
-torch
 opencv-python-headless
 tqdm
-scikit-learn
+scikit-learn==1.5.1
+requests==2.32.3
 wandb
+pillow
+torch
+torchvision
+torchaudio
+openpyxl

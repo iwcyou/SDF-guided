@@ -48,20 +48,20 @@ class l1_loss(nn.Module):
 
 
 class mse_loss(nn.Module):
-    def __init__(self, delta=20, batch=True):
+    def __init__(self, loss_weight=0, batch=True):
         super(mse_loss, self).__init__()
         self.batch = batch
         self.mse_loss = nn.MSELoss()
-        self.delta = delta
+        self.weight = loss_weight
 
     def clamp(self, delta, x):
         return torch.clamp(x, min=-delta, max=delta) / delta
 
-    def forward(self,y_true_sdf, y_pred_sdf, y_true, y_pred):
+    def forward(self, y_true_sdf, y_pred_sdf, y_true, y_pred):
         # loss = self.mse_loss(self.clamp(self.delta, y_pred), self.clamp(self.delta, y_true))
-        y_pred_sdf = torch.tanh(y_pred_sdf)
-        loss = self.mse_loss(y_pred_sdf, y_true_sdf)
-        return loss*10000, loss, loss, loss
+        mse_loss = self.mse_loss(y_pred_sdf, y_true_sdf)
+        zero_loss = torch.tensor(0.0, device=mse_loss.device)  # create a zero tensor on the same device as mse_loss
+        return mse_loss, mse_loss, zero_loss, zero_loss
 
 
 class l2_Dice_Loss(nn.Module):

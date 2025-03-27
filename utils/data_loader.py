@@ -39,10 +39,19 @@ class ImageGPSDataset(data.Dataset):
         else:
             img = None
         if self.mask_type == 'sdf':
-            mask = np.load(os.path.join(self.mask_root, "{}_mask.npy").format(image_id))
+            mask_sdf = np.load(os.path.join(self.mask_root, "{}_mask.npy").format(image_id)) #(h,w)
+            if self.delta == 0:
+                self.delta = 1
+            mask_sdf = np.clip(mask_sdf, -self.delta, self.delta) / self.delta
+
+            mask_sdf = np.expand_dims(mask_sdf, axis=2)
+            mask_seg = cv2.imread(os.path.join(self.mask_root[:-6], "{}_mask.png").format(image_id), cv2.IMREAD_GRAYSCALE) #(h,w)
+            mask_seg = np.array(mask_seg, np.float32) / 255.0
+            mask_seg = np.expand_dims(mask_seg, axis=2)
+            mask = self._concat_images(mask_sdf, mask_seg)
             # mask = np.squeeze(mask)
         else:
-            mask = cv2.imread(os.path.join(self.mask_root,  "{}_mask.png").format(image_id), cv2.IMREAD_GRAYSCALE)
+            mask = cv2.imread(os.path.join(self.mask_root, "{0}_mask.{1}").format(image_id, self.mask_type), cv2.IMREAD_GRAYSCALE)
 
         if mask is None: print("[WARN] empty mask: ", image_id)
         if self.gps_type == 'npy':
@@ -98,18 +107,20 @@ class ImageGPSDataset(data.Dataset):
 
         if img.ndim == 2:
             img = np.expand_dims(img, axis=2)
-        mask = np.expand_dims(mask, axis=2)
+        if mask.ndim == 2:
+            mask = np.expand_dims(mask, axis=2)
         try:
             if self.gps_type == "npy":
                 img = np.array(img, np.float32) / 255.0 * 3.2 - 1.6
             else:
                 img = np.array(img, np.float32).transpose(2, 0, 1) / 255.0 * 3.2 - 1.6
 
-            mask = np.array(mask, np.float32).transpose(2, 0, 1) / 255.0
+            mask = np.array(mask, np.float32).transpose(2, 0, 1)
         except Exception as e:
             print(e)
             print(img.shape, mask.shape)
         if self.mask_type == "png":
+            mask = mask / 255.0
             mask[mask >= 0.5] = 1
             mask[mask < 0.5] = 0
         return img, mask
@@ -122,10 +133,6 @@ class ImageGPSDataset(data.Dataset):
         else:
             gps_img = None
         img, mask = self._read_image_and_mask(image_id)
-        if self.mask_type == 'sdf':
-            if self.delta == 0:
-                self.delta = 1
-            mask = np.clip(mask, -self.delta, self.delta) / self.delta
         #cv2.imwrite(f'dataset/GPS_image_direct/{image_id}_gps.png', gps_img) #保存GPS图像
         img, mask = self._data_augmentation(img, mask, gps_img, self.randomize)
         img, mask = torch.Tensor(img), torch.Tensor(mask)
