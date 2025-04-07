@@ -12,8 +12,14 @@ source tr_sz_sdf.sh # run code
 ```
 ## Shenzhen dataset
 
-All of our *Shenzhen* dataset is based on the web Mercator projection in the GCJ-02 coordinate system. 
+Baidu Drve:
+> 通过网盘分享的文件：Shenzhen_SDF.zip
+链接: https://pan.baidu.com/s/11CL0R1o1xm17vTCLcB8d8Q?pwd=6vf2 提取码: 6vf2
+--来自百度网盘超级会员v4的分享
 
+HuggingFace Version: https://huggingface.co/datasets/iwcyou/Shenzhen_SDF
+
+All of our *Shenzhen* dataset is based on the web Mercator projection in the GCJ-02 coordinate system.
 ### Dataset description
 
 - **train_val/**

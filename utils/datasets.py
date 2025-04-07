@@ -5,7 +5,7 @@ from .data_loader import ImageGPSDataset
 def prepare_Beijing_dataset(args, aug_sampling_rate=None, aug_precision_rate=None):
     image_list = [x[:-9] for x in os.listdir(args.mask_dir) if x.find('mask.') != -1]
     test_list = [x[:-9] for x in os.listdir(args.test_mask_dir) if x.find('mask.') != -1]
-    train_list, val_list = train_test_split(image_list, test_size=args.val_size, random_state=args.random_seed)
+    train_list, val_list = train_test_split(image_list, test_size=args.val_size, random_state=42)
     train_dataset = ImageGPSDataset(args, train_list, args.sat_dir, args.mask_dir, args.gps_dir,
                                     mask_type=args.mask_type, gps_type=args.gps_type,
                                     feature_embedding=args.feature_embedding, aug_mode=args.gps_augmentation, randomize=True)
