@@ -3,7 +3,7 @@ pandas==1.5.1
 opencv-python-headless
 tqdm
 scikit-learn==1.5.1
-requests==2.32.3
+requests==2.33.0
 wandb
 pillow
 torch
